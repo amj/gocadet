@@ -79,7 +79,6 @@ func GetBigram(level int) string {
 }
 
 func GetChar(level int) byte {
-	fmt.Println(level, "-", len(chars[level]))
 	return chars[level][rand.Intn(len(chars[level]))]
 }
 

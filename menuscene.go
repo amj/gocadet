@@ -24,7 +24,8 @@ var optText = [...]string{
 	"LAUNCH",
 }
 
-const breathTime int = 120
+const breathTime int = 60
+const breathAmt float64 = 1 / float64(breathTime/2)
 
 func (s *MenuScene) OnEnter(sm *SceneManager) error {
 	if s.sf == nil { // pick up an alias to the starfield
@@ -44,7 +45,7 @@ func (s *MenuScene) Update(sm *SceneManager) error {
 	sm.Ctx.sf.Update()
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		var c = MissionConfiguration{
-			level:     9,
+			level:     0,
 			msPerChar: 1000,
 			waves:     20,
 			lives:     5,
@@ -65,9 +66,9 @@ func (s *MenuScene) Update(sm *SceneManager) error {
 	}
 	s.tick++
 	if (s.tick % breathTime) < (breathTime / 2) {
-		s.breath += 0.01
+		s.breath += breathAmt
 	} else {
-		s.breath -= 0.01
+		s.breath -= breathAmt
 	}
 	s.breath = clamp(s.breath)
 	return nil
@@ -89,7 +90,7 @@ func (s *MenuScene) Draw(screen *ebiten.Image) {
 	var txt string
 	var c color.RGBA64
 	c1 := color.RGBA64{0xffff, 0xffff, 0xffff, 0xffff}
-	c2 := color.RGBA64{0xffff, 0x4444, 0x4444, 0xffff}
+	c2 := color.RGBA64{0x0000, 0xffff, 0x4444, 0xffff}
 	for i := range optText {
 		if i == s.optSelected {
 			txt = fmt.Sprintf(">%s", optText[i])

@@ -4,15 +4,16 @@ import (
 	"image/color"
 	"log"
 
+	resources "github.com/amj/gocadet/resources"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
+	gofont "golang.org/x/image/font/gofont/gomonobold"
 	"golang.org/x/image/font/opentype"
 )
 
 const (
-	hugeFontSize  = fontSize * 3
+	hugeFontSize  = fontSize * 4
 	titleFontSize = fontSize * 1.5
 	fontSize      = 24
 	smallFontSize = fontSize / 2
@@ -26,16 +27,11 @@ var (
 )
 
 func init() {
-	tt, err := opentype.Parse(fonts.PressStart2P_ttf)
+	tt, err := opentype.Parse(resources.PressStart_ttf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	const dpi = 72
-	hugeArcadeFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    hugeFontSize,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
 
 	titleArcadeFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    titleFontSize,
@@ -61,6 +57,17 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	tt2, err := opentype.Parse(gofont.TTF)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	hugeArcadeFont, err = opentype.NewFace(tt2, &opentype.FaceOptions{
+		Size:    hugeFontSize,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+
 }
 
 func drawCenteredText(screen *ebiten.Image, txt string, face font.Face, yline int, clr color.Color) {
@@ -71,8 +78,8 @@ func drawCenteredText(screen *ebiten.Image, txt string, face font.Face, yline in
 }
 
 func XforCentering(txt string, face font.Face) int {
-	fsize := face.Metrics().Height.Ceil()
-	return (screenWidth - len(txt)*fsize) / 2
+	fsize, _ := face.GlyphAdvance(rune('m'))
+	return (screenWidth - len(txt)*fsize.Ceil()) / 2
 }
 
 func drawTargetWord(screen *ebiten.Image, txt string, idx int, x, y float64) {
