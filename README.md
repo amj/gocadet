@@ -1,9 +1,6 @@
 = todo
-keep score/print score
-print lives left
 menu settings (speed, mission choice)
 animate nonwords
-mission summary
 victory fanfare
 persist scores
 profile scene
@@ -11,6 +8,7 @@ add mothership event
 hand graphics
 add reverb to sound fx
 opening music
+better "shields" graphic.
 
 
 = Scenes

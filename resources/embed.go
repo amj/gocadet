@@ -1,9 +1,12 @@
 package resources
 
-import _ "embed"
-import "log"
-import "math/rand"
-import "github.com/hajimehoshi/ebiten/v2/audio"
+import (
+	_ "embed"
+	"log"
+	"math/rand"
+
+	"github.com/hajimehoshi/ebiten/v2/audio"
+)
 
 var (
 	//go:embed keyboard.png
@@ -47,6 +50,12 @@ var (
 
 	//go:embed sfx/menu.wav
 	Menu_wav []byte
+
+	//go:embed mplus-1p-regular.ttf
+	Mplus1p_ttf []byte
+
+	//go:embed pressstart2p.ttf
+	PressStart_ttf []byte
 )
 
 type wav []byte
@@ -58,10 +67,10 @@ func init() {
 }
 
 var fxs = map[string][]wav{
-	"hit": {Hit1_wav, Hit2_wav, Hit3_wav, Hit4_wav, Hit5_wav, Hit6_wav},
-	"expl": {Expl0_wav, Expl1_wav, Expl2_wav, Expl3_wav, Expl4_wav},
+	"hit":     {Hit1_wav, Hit2_wav, Hit3_wav, Hit4_wav, Hit5_wav, Hit6_wav},
+	"expl":    {Expl0_wav, Expl1_wav, Expl2_wav, Expl3_wav, Expl4_wav},
 	"takeoff": {Takeoff_wav},
-	"menu": {Menu_wav},
+	"menu":    {Menu_wav},
 }
 
 func PlayFX(name string) {
