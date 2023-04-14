@@ -157,7 +157,9 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 			g.SetTargetWord()
 		}
 	case targetMiss:
-		//play a sound?
+		if g.ticksInState == 0 {
+			resources.PlayFX("bonk")
+		}
 		if g.ticksInState == 5 {
 			g.livesLeft--
 			g.nextState = targetUp

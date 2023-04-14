@@ -22,6 +22,7 @@ const breathTime int = 60
 const breathAmt float64 = 1 / float64(breathTime/2)
 
 func (s *MenuScene) OnEnter(sm *SceneManager) error {
+	resources.PlayIntro()
 	if s.sf == nil { // pick up an alias to the starfield
 		s.sf = sm.Ctx.sf
 	}
@@ -38,6 +39,7 @@ func (s *MenuScene) OnEnter(sm *SceneManager) error {
 
 func (s *MenuScene) OnExit(sm *SceneManager) error {
 	s.sf = nil
+	resources.IntroPlayer.Pause()
 	return nil
 }
 
