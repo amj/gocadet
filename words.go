@@ -5,6 +5,8 @@ import (
 	"math/rand"
 )
 
+const WordsMaxLevel = 11
+
 var missions = map[int]string{
 	0:  "home row",
 	1:  "heo",

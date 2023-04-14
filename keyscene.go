@@ -86,6 +86,7 @@ func (g *KeyScene) OnEnter(sm *SceneManager) error {
 }
 
 func (g *KeyScene) OnExit(sm *SceneManager) error {
+	AddProfile(sm.Ctx.Profile)
 	g.sf.moveT = zoomin
 	g.sf.speed = 1.0 / 64.0
 	g.sf = nil
@@ -167,7 +168,10 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 			resources.PlayFX("takeoff") // TODO: victory fanfare
 			g.sf.moveT = zoomin
 			g.sf.speed = 1.0 / 300.0
+			// save the game result.  TODO: check for better score
+			sm.Ctx.Profile.Results[g.cfg.level] = g.MakeResult(true)
 		}
+		//acceleration effect
 		g.sf.speed = 1.0 / (300.0 - min(285.0, float32(g.ticksInState)))
 	}
 
@@ -184,6 +188,16 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 	}
 	g.ticksInState++
 	return nil
+}
+
+func (g *KeyScene) MakeResult(won bool) GameResult {
+	return GameResult{
+		Score:    g.score,
+		Accuracy: float32(g.fired-g.miss) / float32(g.fired),
+		Errors:   g.miss,
+		Won:      won,
+	}
+
 }
 
 func min(x, y float32) float32 {

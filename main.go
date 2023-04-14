@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	_ "image/png"
 	"log"
 
@@ -12,7 +13,6 @@ type Context struct {
 	Opts    GameOptions
 	Profile UserProfile
 	MCfg    MissionConfiguration
-	Result  GameResults
 	sf      *Starfield
 }
 
@@ -25,9 +25,9 @@ type GameOptions struct {
 }
 
 type UserProfile struct {
-	name       string
-	results    map[int]GameResults // per level
-	bigramErrs []string            // most recent N mistakes
+	Name       string
+	Results    map[int]GameResult // per level
+	bigramErrs []string           // most recent N mistakes
 }
 
 type MissionConfiguration struct {
@@ -38,11 +38,12 @@ type MissionConfiguration struct {
 	practiceMode bool
 }
 
-type GameResults struct {
+type GameResult struct {
 	time     int
-	score    int
-	errors   int
-	accuracy float32
+	Score    int
+	Errors   int
+	Accuracy float32
+	Won      bool
 }
 
 var errQuit = errors.New("Quit")
@@ -54,10 +55,18 @@ func main() {
 		"menu": &MenuScene{},
 		"game": &KeyScene{},
 	})
+	if p, ok := ActiveProfile(); ok {
+		m.Ctx.Profile = p
+	} else {
+		fmt.Println("No pilots found")
+	}
+
 	m.SwitchTo("menu")
 	m.current.OnEnter(m)
+	defer SavePilots()
 
 	if err := ebiten.RunGame(m); err != nil && err != errQuit {
 		log.Fatal(err)
 	}
+
 }
