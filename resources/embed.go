@@ -3,6 +3,7 @@ package resources
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"log"
 	"math/rand"
 
@@ -100,6 +101,7 @@ var fxs = map[string][]wav{
 }
 
 func PlayFX(name string) {
+	fmt.Println("Playing", name)
 	choices, ok := fxs[name]
 	if !ok {
 		log.Fatal(name, "Not found")

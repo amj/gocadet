@@ -16,6 +16,7 @@ type MenuScene struct {
 	breath      float64
 	optSelected int
 	profile     *UserProfile
+	mCfg        *MissionConfiguration
 }
 
 const breathTime int = 60
@@ -32,6 +33,8 @@ func (s *MenuScene) OnEnter(sm *SceneManager) error {
 	} else {
 		s.profile = nil
 	}
+
+	s.mCfg = &sm.Ctx.MCfg
 	s.tick = 0
 	s.breath = 0
 	return nil
@@ -46,19 +49,27 @@ func (s *MenuScene) OnExit(sm *SceneManager) error {
 func (s *MenuScene) Update(sm *SceneManager) error {
 	sm.Ctx.sf.Update()
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-
-		if sm.Ctx.Profile.Name == "" {
-			sm.Ctx.Profile = UserProfile{Name: "dad", Results: make(map[int]GameResult)}
+		switch s.optSelected {
+		case 0: // Do profile switch?
+		case 1: // speed
+			resources.PlayFX("menu") // TODO -- new sound?
+			sm.Ctx.Profile.Speed++
+			if sm.Ctx.Profile.Speed > master {
+				sm.Ctx.Profile.Speed = beginner
+			}
+		case 2:
+			resources.PlayFX("menu")
+			sm.Ctx.MCfg.level++
+			if sm.Ctx.MCfg.level > sm.Ctx.Profile.findCurrentLevel() {
+				sm.Ctx.MCfg.level = 0
+			}
+		case 3: // Launch!
+			if sm.Ctx.Profile.Name == "" {
+				sm.Ctx.Profile = UserProfile{Name: "dad", Results: make(map[int]GameResult)}
+			}
+			pData.LastUsed = sm.Ctx.Profile.Name
+			sm.SwitchTo("game")
 		}
-		var c = MissionConfiguration{
-			level:     sm.Ctx.Profile.findCurrentLevel(),
-			msPerChar: 1000,
-			waves:     20,
-			lives:     5,
-		}
-		sm.Ctx.MCfg = c
-		pData.LastUsed = sm.Ctx.Profile.Name
-		sm.SwitchTo("game")
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		return ebiten.Termination
@@ -72,13 +83,17 @@ func (s *MenuScene) Update(sm *SceneManager) error {
 		resources.PlayFX("menu")
 	}
 	s.tick++
-	if (s.tick % breathTime) < (breathTime / 2) {
-		s.breath += breathAmt
-	} else {
-		s.breath -= breathAmt
-	}
-	s.breath = clamp(s.breath)
+	s.breath = UpdateBreath(s.tick, s.breath)
 	return nil
+}
+
+func UpdateBreath(tick int, breath float64) float64 {
+	if (tick % breathTime) < (breathTime / 2) {
+		breath += breathAmt
+	} else {
+		breath -= breathAmt
+	}
+	return clamp(breath)
 }
 
 func clamp(x float64) float64 {
@@ -92,8 +107,8 @@ func clamp(x float64) float64 {
 }
 
 var optText = [...]string{
-	"Pilot  ",
-	"Speed  ",
+	"Pilot",
+	"Speed",
 	"Mission",
 	"LAUNCH",
 }
@@ -104,7 +119,7 @@ func (s *MenuScene) Draw(screen *ebiten.Image) {
 	var txt string
 	var c color.RGBA64
 	c1 := color.RGBA64{0xffff, 0xffff, 0xffff, 0xffff}
-	c2 := color.RGBA64{0x0000, 0xffff, 0x4444, 0xffff}
+	c2 := color.RGBA64{0x0000, 0xeeee, 0x3333, 0xffff}
 	for i := range optText {
 		if i == s.optSelected {
 			txt = fmt.Sprintf(">%s", optText[i])
@@ -117,8 +132,10 @@ func (s *MenuScene) Draw(screen *ebiten.Image) {
 			switch i {
 			case 0:
 				txt = fmt.Sprintf("%s: %s", txt, s.profile.Name)
+			case 1:
+				txt = fmt.Sprintf("%s: %s", txt, s.profile.Speed)
 			case 2:
-				txt = fmt.Sprintf("%s: %d", txt, s.profile.findCurrentLevel())
+				txt = fmt.Sprintf("%s: %d", txt, s.mCfg.level)
 			}
 		}
 

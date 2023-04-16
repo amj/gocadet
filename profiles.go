@@ -9,6 +9,27 @@ import (
 
 const profPath = "pilots.gob"
 
+type difficulty uint8
+
+const (
+	beginner difficulty = iota
+	standard
+	advanced
+	expert
+	master
+)
+
+func (me difficulty) String() string {
+	return [...]string{"slow", "fast", "super", "Hyper!", "ULTRA"}[me]
+}
+
+type UserProfile struct {
+	Name       string
+	Speed      difficulty         // difficulty setting.
+	Results    map[int]GameResult // per level
+	bigramErrs []string           // most recent N mistakes
+}
+
 type PilotData struct {
 	LastUsed string
 	Profiles map[string]UserProfile

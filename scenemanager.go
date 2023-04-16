@@ -67,6 +67,11 @@ func MakeManager(scenes map[string]Scene) *SceneManager {
 		Scenes: scenes,
 	}
 	m.Ctx.sf = NewStarfield(64)
+	m.Ctx.MCfg = MissionConfiguration{
+		level: 0,
+		waves: 20,
+		lives: 5,
+	}
 	return m
 }
 

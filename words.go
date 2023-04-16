@@ -41,7 +41,7 @@ var words = map[int][]string{
 	2:  {"the", "these", "those", "that", "Oath", "side", "tie", "Jot", "fit", "sit", "flit"},
 	3:  {"wait", "saw", "was", "wit", "what", "who", "water", "rook", "Look", "took"},
 	4:  {"wing", "nog", "go", "wag", "grow", "ring", "rag", "thing", "find"},
-	5:  {"cup", "puck", "cog", "pin", "pun", "fun", "ping", "rung"},
+	5:  {"Cup", "Puck", "Cog", "Pin", "Pun", "Fun", "Ping", "rung"},
 	6:  {"ply", "six", "ox", "fox", "toy", "yip", "fix", "say"},
 	7:  {"maze", "max", "yam", "mop", "zap", "map", "book"},
 	8:  {"mob", "job", "fob", "slab", "jab", "quit", "boom", "view"},
@@ -122,23 +122,14 @@ func GetTarget(level int, wave int) string {
 	}
 }
 
-type speed uint8 // ticks per character
-const (
-	slow = iota
-	medium
-	fast
-	vfast
-	ultra
-)
-
-var Speeds = map[speed]int{
-	slow:   300,
-	medium: 120,
-	fast:   60,
-	vfast:  45,
-	ultra:  30,
+var Speeds = map[difficulty]int{
+	beginner: 300,
+	standard: 120,
+	advanced: 60,
+	expert:   45,
+	master:   30,
 }
 
-func (me speed) String() string {
-	return [...]string{"normal", "fast", "superfast", "hyperfast", "ultrafast"}[me]
+func WordScore(ticksInState, wordLen int) int {
+	return (Speeds[beginner] * wordLen) - ticksInState
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// present in the scenemanager, should be copied from scene to scene?
 type Context struct {
 	Opts    GameOptions
 	Profile UserProfile
@@ -24,15 +25,8 @@ type GameOptions struct {
 	kbLayout    bool // eventually something else?
 }
 
-type UserProfile struct {
-	Name       string
-	Results    map[int]GameResult // per level
-	bigramErrs []string           // most recent N mistakes
-}
-
 type MissionConfiguration struct {
 	level        int
-	msPerChar    int
 	waves        int
 	lives        int
 	practiceMode bool
@@ -62,7 +56,7 @@ func main() {
 	}
 
 	m.SwitchTo("menu")
-	m.current.OnEnter(m)
+	m.current.OnEnter(m) // Manually call OnEnter before our loop starts.
 	defer SavePilots()
 
 	if err := ebiten.RunGame(m); err != nil && err != errQuit {

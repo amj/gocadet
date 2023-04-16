@@ -54,6 +54,7 @@ type KeyScene struct {
 	score        int
 	miss         int
 	fired        int
+	speed        difficulty
 	cfg          MissionConfiguration
 	sf           *Starfield
 }
@@ -70,6 +71,7 @@ func init() {
 func (g *KeyScene) OnEnter(sm *SceneManager) error {
 	fmt.Println("Entered keyscene")
 	g.cfg = sm.Ctx.MCfg
+	g.speed = sm.Ctx.Profile.Speed
 	g.livesLeft = g.cfg.lives
 	g.waveNum = 0
 	g.state = launch
@@ -127,7 +129,7 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 			g.nextState = targetUp
 			g.sf.moveT = stopped
 		}
-	case targetUp:
+	case targetUp: // target up on screen!  fire!
 		if g.target == "" {
 			g.SetTargetWord()
 		}
@@ -139,7 +141,7 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 			if k == rune(g.target[g.targetIdx]) {
 				g.targetIdx++
 				if g.targetIdx == len(g.target) {
-					g.score += g.ticksLeft
+					g.score += WordScore(g.ticksInState, len(g.target))
 					g.nextState = targetGot
 				} else {
 					resources.PlayFX("hit")
@@ -199,7 +201,6 @@ func (g *KeyScene) MakeResult(won bool) GameResult {
 		Errors:   g.miss,
 		Won:      won,
 	}
-
 }
 
 func min(x, y float32) float32 {
@@ -217,7 +218,7 @@ func (g *KeyScene) SetTargetWord() {
 	} // do it until we get a new word
 	g.target = newW
 	g.targetIdx = 0
-	g.ticksLeft = len(g.target) * 120
+	g.ticksLeft = len(g.target) * Speeds[g.speed]
 }
 
 func (g *KeyScene) Draw(screen *ebiten.Image) {
