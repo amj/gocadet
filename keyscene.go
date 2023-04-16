@@ -143,6 +143,7 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 				if g.targetIdx == len(g.target) {
 					g.score += WordScore(g.ticksInState, len(g.target))
 					g.nextState = targetGot
+					break
 				} else {
 					resources.PlayFX("hit")
 				}
