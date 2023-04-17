@@ -15,6 +15,9 @@ var (
 	//go:embed keyboard.png
 	Keyboard_png []byte
 
+	//go:embed hands-home.png
+	HandsHome_png []byte
+
 	//go:embed sfx/hit1.wav
 	Hit1_wav []byte
 

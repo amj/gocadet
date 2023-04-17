@@ -82,7 +82,8 @@ func XforCentering(txt string, face font.Face) int {
 	return (screenWidth - len(txt)*fsize.Ceil()) / 2
 }
 
-func drawTargetWord(screen *ebiten.Image, txt string, idx int, x, y float64) {
+//idx == highlighted character.
+func drawTargetWord(screen *ebiten.Image, txt string, idx int, x, y, scale float64) {
 	var glyphs []text.Glyph
 	glyphs = text.AppendGlyphs(glyphs, hugeArcadeFont, txt) // todo: maybe don't reraster these
 	op := &ebiten.DrawImageOptions{}
@@ -91,6 +92,7 @@ func drawTargetWord(screen *ebiten.Image, txt string, idx int, x, y float64) {
 		op.GeoM.Reset()
 		op.GeoM.Translate(x, y)
 		op.GeoM.Translate(gl.X, gl.Y)
+		op.GeoM.Scale(scale, scale)
 		op.ColorScale.Reset()
 		gb := float32(1)
 		if i == idx {
@@ -100,6 +102,13 @@ func drawTargetWord(screen *ebiten.Image, txt string, idx int, x, y float64) {
 		screen.DrawImage(gl.Image, op)
 	}
 
+}
+
+func lerpf(x1, x2, t float64) float64 {
+	return (x1 + (x2-x1)*t)
+}
+func lerpi(x1, x2 int, t float64) float64 {
+	return (float64(x1) + float64(x2-x1)*t)
 }
 
 func interpolateColors(c1, c2 color.RGBA64, t float64) color.RGBA64 {

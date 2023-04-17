@@ -122,6 +122,7 @@ func GetTarget(level int, wave int) string {
 	}
 }
 
+// ticks per character.
 var Speeds = map[difficulty]int{
 	beginner: 300,
 	standard: 120,
@@ -132,4 +133,8 @@ var Speeds = map[difficulty]int{
 
 func WordScore(ticksInState, wordLen int) int {
 	return (Speeds[beginner] * wordLen) - ticksInState
+}
+
+func TicksForTarget(wordLen int, d difficulty) int {
+	return wordLen * Speeds[d]
 }

@@ -13,12 +13,14 @@ It's "playable" but the current typing "curriculum" is not very good; see the to
  - [x] menu settings (speed, mission choice)
  - [x] make speed setting affect the right thing.
  - [x] adjust scores based on difficulty.
- - [ ] add mothership event / fix chording
+ - [ ] add mothership event (n-key rollover?)
  - [ ] add "approaching" sfx/riser. (figure out offsets into file?)
- - [ ] animate nonwords
- - [ ] hand graphics showing proper placement.
+ - [ ] targeting reticule graphic?
+ - [x] animate nonwords
+ - [x] hand graphics - home
+ - [ ] hand graphics -- other keys
  - [ ] victory screen score & progression message (high score, personal best, etc)
- - [ ] 'crashed' display & message.
+ - [x] 'crashed' display & message.
  - [ ] defeat music.  womp womp!
  - [ ] display name of level / help text.
  - [ ] High scores screen.

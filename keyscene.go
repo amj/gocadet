@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"math/rand"
 	"unicode"
 
 	keyboard "github.com/amj/gocadet/keyboard"
@@ -17,6 +18,7 @@ import (
 )
 
 var keyboardImage *ebiten.Image
+var handsHomeImage *ebiten.Image
 var shieldImage *ebiten.Image
 
 const (
@@ -45,7 +47,9 @@ type KeyScene struct {
 	keys         []rune
 	state        gameState
 	nextState    gameState
-	target       string // Current word to spell
+	target       string  // Current word to spell
+	tgtX         float64 // current position of target letter, for animating letters.
+	tgtY         float64
 	ticksInState int
 	waveNum      int // number of targets seen
 	targetIdx    int // Index of cursor
@@ -64,8 +68,13 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	keyboardImage = ebiten.NewImageFromImage(img)
+
+	img, _, err = image.Decode(bytes.NewReader(resources.HandsHome_png))
+	if err != nil {
+		log.Fatal(err)
+	}
+	handsHomeImage = ebiten.NewImageFromImage(img)
 }
 
 func (g *KeyScene) OnEnter(sm *SceneManager) error {
@@ -135,6 +144,10 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 		}
 		if g.ticksLeft == 0 {
 			g.nextState = targetMiss
+		}
+		if len(g.target) < 3 {
+			g.tgtX = lerpf(g.tgtX, float64(XforCentering(g.target, hugeArcadeFont)), 1/float64(g.ticksLeft))
+			g.tgtY = lerpf(g.tgtY, 200, 1/float64(g.ticksLeft))
 		}
 		for _, k := range g.keys {
 			g.fired++
@@ -219,12 +232,16 @@ func (g *KeyScene) SetTargetWord() {
 	} // do it until we get a new word
 	g.target = newW
 	g.targetIdx = 0
-	g.ticksLeft = len(g.target) * Speeds[g.speed]
+	g.ticksLeft = TicksForTarget(len(g.target), g.speed)
+	if len(g.target) < 3 { // short words zoom towards the player.
+		g.tgtX = float64(rand.Intn(400) + 200)
+		g.tgtY = float64(rand.Intn(100) + 100)
+	}
 }
 
 func (g *KeyScene) Draw(screen *ebiten.Image) {
 	g.sf.Draw(screen)
-	if g.state != success {
+	if g.state != success && g.state != crashed {
 		g.DrawKeyboard(screen)
 		g.DrawShields(screen)
 	}
@@ -234,8 +251,19 @@ func (g *KeyScene) Draw(screen *ebiten.Image) {
 		drawCenteredText(screen, "MISSION COMPLETE", titleArcadeFont, 2, color.RGBA{0x22, 0xff, 0x22, 0xff})
 		drawCenteredText(screen, fmt.Sprintf("Score: %d00", g.score), arcadeFont, 4, color.White)
 		drawCenteredText(screen, fmt.Sprintf("Accuracy: %d%%", (100*(g.fired-g.miss))/g.fired), arcadeFont, 5, color.White)
+	case crashed:
+		drawCenteredText(screen, "CRASHED!", titleArcadeFont, 2, color.RGBA{0xff, 0x22, 0x22, 0xff})
+		drawCenteredText(screen, fmt.Sprintf("Score: %d00", g.score), arcadeFont, 4, color.White)
+		drawCenteredText(screen, "Don't give up!", arcadeFont, 5, color.White)
+
 	case targetUp:
-		drawTargetWord(screen, g.target, g.targetIdx, float64(XforCentering(g.target, hugeArcadeFont)), 200)
+		if len(g.target) < 3 {
+			scale := 0.7 + lerpf(0, 0.3, float64(g.ticksInState)/float64(TicksForTarget(len(g.target), g.speed)))
+			drawTargetWord(screen, g.target, g.targetIdx,
+				float64(g.tgtX), float64(g.tgtY), scale)
+		} else {
+			drawTargetWord(screen, g.target, g.targetIdx, float64(XforCentering(g.target, hugeArcadeFont)), 200, 1.0)
+		}
 		g.DrawHighlightKeys(screen)
 		fallthrough
 
@@ -260,7 +288,7 @@ func (g *KeyScene) DrawHighlightKeys(screen *ebiten.Image) {
 	if g.targetIdx >= len(g.target) {
 		return
 	}
-	if (g.ticksInState % 30) > 15 {
+	if (g.ticksInState % 30) > 15 { // blink it
 		return
 	}
 	op := &ebiten.DrawImageOptions{}
@@ -284,6 +312,8 @@ func (g *KeyScene) DrawKeyboard(screen *ebiten.Image) {
 	op.GeoM.Translate(kbdOffsetX, kbdOffsetY)
 	op.ColorScale.Scale(0.8, 0.8, 0.8, 1)
 	screen.DrawImage(keyboardImage, op)
+	op.ColorScale.Scale(0.8, 0.8, 0.8, 0.01) // where's my alpha? >:(
+	screen.DrawImage(handsHomeImage, op)
 }
 
 func (g *KeyScene) DrawShields(screen *ebiten.Image) {
