@@ -101,6 +101,7 @@ func (g *KeyScene) OnExit(sm *SceneManager) error {
 	g.sf.moveT = zoomin
 	g.sf.speed = 1.0 / 64.0
 	g.sf = nil
+	resources.StopRiser()
 	return nil
 }
 
@@ -142,7 +143,11 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 		if g.target == "" {
 			g.SetTargetWord()
 		}
+		if g.ticksInState == 0 {
+			resources.PlayRiser(g.ticksLeft)
+		}
 		if g.ticksLeft == 0 {
+			resources.StopRiser()
 			g.nextState = targetMiss
 		}
 		if len(g.target) < 3 {
@@ -156,6 +161,7 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 				if g.targetIdx == len(g.target) {
 					g.score += WordScore(g.ticksInState, len(g.target))
 					g.nextState = targetGot
+					resources.StopRiser()
 					break
 				} else {
 					resources.PlayFX("hit")
@@ -234,8 +240,9 @@ func (g *KeyScene) SetTargetWord() {
 	g.targetIdx = 0
 	g.ticksLeft = TicksForTarget(len(g.target), g.speed)
 	if len(g.target) < 3 { // short words zoom towards the player.
-		g.tgtX = float64(rand.Intn(400) + 200)
-		g.tgtY = float64(rand.Intn(100) + 100)
+		g.tgtX = rand.NormFloat64()*float64(Speeds[g.speed]/5) + float64(420)
+		g.tgtY = rand.NormFloat64()*float64(Speeds[g.speed]/8) + float64(150)
+		fmt.Printf("X: %0.3f, Y: %0.3f", g.tgtX, g.tgtY)
 	}
 }
 

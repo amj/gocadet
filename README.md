@@ -15,7 +15,6 @@ It's "playable" but the current typing "curriculum" is not very good; see the to
  - [x] adjust scores based on difficulty.
  - [ ] add mothership event (n-key rollover?)
  - [ ] add "approaching" sfx/riser. (figure out offsets into file?)
- - [ ] targeting reticule graphic?
  - [x] animate nonwords
  - [x] hand graphics - home
  - [ ] hand graphics -- other keys
@@ -27,7 +26,9 @@ It's "playable" but the current typing "curriculum" is not very good; see the to
  - [ ] Redo "lesson" curriculum / better word choices. (Shifts & capitals)
  - [ ] Refactor how "profiles" work.
  - [ ] game options screen 
+ - [ ] help screen 
  - [ ] practice mode.
+ - [ ] targeting reticule graphic?
  - [x] victory fanfare
  - [x] persist scores
  - [ ] add reverb to sound fx
