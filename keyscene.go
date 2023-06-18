@@ -197,6 +197,10 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 		}
 		//acceleration effect
 		g.sf.speed = 1.0 / (300.0 - min(285.0, float32(g.ticksInState)))
+	case crashed:
+		if g.ticksInState == 40 {
+			resources.PlayFX("crashed")
+		}
 	}
 
 	// End-scene checks.
@@ -240,7 +244,7 @@ func (g *KeyScene) SetTargetWord() {
 	g.targetIdx = 0
 	g.ticksLeft = TicksForTarget(len(g.target), g.speed)
 	if len(g.target) < 3 { // short words zoom towards the player.
-		g.tgtX = rand.NormFloat64()*float64(Speeds[g.speed]/5) + float64(420)
+		g.tgtX = rand.NormFloat64()*float64(Speeds[g.speed]/4) + float64(420)
 		g.tgtY = rand.NormFloat64()*float64(Speeds[g.speed]/8) + float64(150)
 		fmt.Printf("X: %0.3f, Y: %0.3f", g.tgtX, g.tgtY)
 	}

@@ -73,6 +73,9 @@ var (
 	//go:embed sfx/riser0_80s.ogg
 	Riser0_80s_ogg []byte
 
+	//go:embed sfx/crashed.ogg
+	Crashed_ogg []byte
+
 	//go:embed sfx/takeoff.wav
 	Takeoff_wav []byte
 
@@ -177,11 +180,24 @@ var fxs = map[string][]wav{
 }
 
 func PlayFX(name string) {
-	choices, ok := fxs[name]
-	if !ok {
-		log.Fatal(name, "Not found")
+	switch name {
+	case "crashed":
+		s, err := vorbis.DecodeWithoutResampling(bytes.NewReader(Crashed_ogg))
+		if err != nil {
+			log.Fatal("Decoding crashed ogg: %w", err)
+		}
+		sePlayer, err := audio.NewPlayer(ACtx, s)
+		if err != nil {
+			log.Fatal("Playing crashed ogg: %w", err)
+		}
+		sePlayer.Play()
+	default:
+		choices, ok := fxs[name]
+		if !ok {
+			log.Fatal(name, "Not found")
+		}
+		x := choices[rand.Intn(len(choices))]
+		sePlayer := audio.NewPlayerFromBytes(ACtx, x)
+		sePlayer.Play()
 	}
-	x := choices[rand.Intn(len(choices))]
-	sePlayer := audio.NewPlayerFromBytes(ACtx, x)
-	sePlayer.Play()
 }

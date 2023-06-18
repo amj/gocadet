@@ -14,13 +14,14 @@ It's "playable" but the current typing "curriculum" is not very good; see the to
  - [x] make speed setting affect the right thing.
  - [x] adjust scores based on difficulty.
  - [ ] add mothership event (n-key rollover?)
- - [ ] add "approaching" sfx/riser. (figure out offsets into file?)
+ - [ ] add 'get ready' phase.
+ - [x] add "approaching" sfx/riser. 
  - [x] animate nonwords
  - [x] hand graphics - home
  - [ ] hand graphics -- other keys
  - [ ] victory screen score & progression message (high score, personal best, etc)
  - [x] 'crashed' display & message.
- - [ ] defeat music.  womp womp!
+ - [x] defeat music.  womp womp!
  - [ ] display name of level / help text.
  - [ ] High scores screen.
  - [ ] Redo "lesson" curriculum / better word choices. (Shifts & capitals)
@@ -36,6 +37,7 @@ It's "playable" but the current typing "curriculum" is not very good; see the to
  - [ ] figure out opening music loop point.
  - [x] better "shields" graphic.
  - [ ] Convert all the sounds to ogg. (some are mono?)
+ - [ ] bug: riser sounds very quiet on cros?
 
 
 = Scenes
