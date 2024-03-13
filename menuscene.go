@@ -54,7 +54,7 @@ func (s *MenuScene) Update(sm *SceneManager) error {
 		case 1: // speed
 			resources.PlayFX("menu") // TODO -- new sound?
 			sm.Ctx.Profile.Speed++
-			if sm.Ctx.Profile.Speed > master {
+			if sm.Ctx.Profile.Speed > master { // loop around
 				sm.Ctx.Profile.Speed = beginner
 			}
 		case 2:
@@ -63,7 +63,8 @@ func (s *MenuScene) Update(sm *SceneManager) error {
 			if sm.Ctx.MCfg.level > sm.Ctx.Profile.findCurrentLevel() {
 				sm.Ctx.MCfg.level = 0
 			}
-		case 3: // Launch!
+		case 3: // Instructions
+		case 4: // Launch!
 			if sm.Ctx.Profile.Name == "" {
 				sm.Ctx.Profile = UserProfile{Name: "dad", Results: make(map[int]GameResult)}
 			}
@@ -110,6 +111,7 @@ var optText = [...]string{
 	"Pilot",
 	"Speed",
 	"Mission",
+	"Instructions",
 	"LAUNCH",
 }
 

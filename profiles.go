@@ -38,7 +38,7 @@ type PilotData struct {
 var pData PilotData
 
 func init() {
-	// load pilots?
+	// load pilot file, if any.
 	fd, err := os.Open(profPath)
 	defer fd.Close()
 

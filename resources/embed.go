@@ -22,6 +22,9 @@ var (
 	//go:embed hands-home.png
 	HandsHome_png []byte
 
+	//go:embed moship2.png
+	Moship_png []byte
+
 	//go:embed sfx/hit1.wav
 	Hit1_wav []byte
 
@@ -88,6 +91,9 @@ var (
 	//go:embed sfx/victory.mp3
 	Victory_mp3 []byte
 
+	//go:embed sfx/moship.ogg
+	Moship_ogg []byte
+
 	//go:embed mplus-1p-regular.ttf
 	Mplus1p_ttf []byte
 
@@ -104,7 +110,7 @@ type audioStream interface {
 
 var ACtx *audio.Context
 
-var IntroPlayer, RiserPlayer, VictoryPlayer *audio.Player
+var IntroPlayer, RiserPlayer, SfxPlayer, VictoryPlayer *audio.Player
 
 var risers map[string]audioStream
 
@@ -124,6 +130,16 @@ func init() {
 	risers["2_5s"], err = vorbis.DecodeWithoutResampling(bytes.NewReader(Riser2_5s_ogg))
 	risers["1_25s"], err = vorbis.DecodeWithoutResampling(bytes.NewReader(Riser1_25s_ogg))
 	risers["0_80s"], err = vorbis.DecodeWithoutResampling(bytes.NewReader(Riser0_80s_ogg))
+
+	s, err := vorbis.DecodeWithoutResampling(bytes.NewReader(Moship_ogg))
+	if err != nil {
+		log.Fatal("Decoding moship ogg: %w", err)
+	}
+	SfxPlayer, err = audio.NewPlayer(ACtx, s)
+	if err != nil {
+		log.Fatal("Playing moship ogg: %w", err)
+	}
+
 }
 
 func PlayIntro() {
@@ -171,6 +187,14 @@ func StopRiser() {
 	}
 }
 
+func StopSfxPlayer() {
+	fmt.Println("stopping fx")
+	if SfxPlayer != nil {
+		fmt.Println("wasn't nil")
+		SfxPlayer.Close()
+	}
+}
+
 var fxs = map[string][]wav{
 	"hit":     {Hit1_wav, Hit2_wav, Hit3_wav, Hit4_wav, Hit5_wav, Hit6_wav},
 	"expl":    {Expl0_wav, Expl1_wav, Expl2_wav, Expl3_wav, Expl4_wav},
@@ -181,23 +205,27 @@ var fxs = map[string][]wav{
 
 func PlayFX(name string) {
 	switch name {
+	case "moship":
+		SfxPlayer.Rewind()
+		SfxPlayer.Play()
+
 	case "crashed":
 		s, err := vorbis.DecodeWithoutResampling(bytes.NewReader(Crashed_ogg))
 		if err != nil {
 			log.Fatal("Decoding crashed ogg: %w", err)
 		}
-		sePlayer, err := audio.NewPlayer(ACtx, s)
+		SfxPlayer, err := audio.NewPlayer(ACtx, s)
 		if err != nil {
 			log.Fatal("Playing crashed ogg: %w", err)
 		}
-		sePlayer.Play()
+		SfxPlayer.Play()
 	default:
 		choices, ok := fxs[name]
 		if !ok {
 			log.Fatal(name, "Not found")
 		}
 		x := choices[rand.Intn(len(choices))]
-		sePlayer := audio.NewPlayerFromBytes(ACtx, x)
-		sePlayer.Play()
+		SfxPlayer := audio.NewPlayerFromBytes(ACtx, x)
+		SfxPlayer.Play()
 	}
 }

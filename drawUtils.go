@@ -82,7 +82,7 @@ func XforCentering(txt string, face font.Face) int {
 	return (screenWidth - len(txt)*fsize.Ceil()) / 2
 }
 
-//idx == highlighted character.
+// idx == highlighted character.
 func drawTargetWord(screen *ebiten.Image, txt string, idx int, x, y, scale float64) {
 	var glyphs []text.Glyph
 	glyphs = text.AppendGlyphs(glyphs, hugeArcadeFont, txt) // todo: maybe don't reraster these

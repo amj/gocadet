@@ -14,7 +14,12 @@ It's "playable" but the current typing "curriculum" is not very good; see the to
  - [x] make speed setting affect the right thing.
  - [x] adjust scores based on difficulty.
  - [ ] add mothership event (n-key rollover?)
- - [ ] add 'get ready' phase.
+     - [ ] show which keys need to be pressed?
+     - [x] mothership sound effect.
+     - [x] mothership graphics
+     - [ ] mothership explode?
+     - [ ] moship victory sound?
+ - [x] add 'get ready' phase.
  - [x] add "approaching" sfx/riser. 
  - [x] animate nonwords
  - [x] hand graphics - home

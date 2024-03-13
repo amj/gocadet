@@ -94,11 +94,11 @@ func GetTarget(level int, wave int) string {
 		return GetBigram(level)
 	case fewWords:
 		return string(GetChar(level))
-	case wave%5 == 0:
+	case wave%5 == 0: // every 5th target is at the current level
 		return GetWord(level)
-	case wave%3 == 0:
+	case wave%3 == 0: // every 3rd target is a bigram at the current level
 		return GetBigram(level)
-	case level > 5:
+	case level > 5: /// after the 5th level, they're all at the current level.
 		if rand.Float64() > 0.5 {
 			return GetBigram(level)
 		} else {

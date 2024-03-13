@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"log"
 	"math/rand"
+	"strings"
 	"unicode"
 
 	keyboard "github.com/amj/gocadet/keyboard"
@@ -20,6 +21,7 @@ import (
 var keyboardImage *ebiten.Image
 var handsHomeImage *ebiten.Image
 var shieldImage *ebiten.Image
+var moshipImage *ebiten.Image
 
 const (
 	kbdOffsetX = 48
@@ -30,6 +32,7 @@ type gameState uint8
 
 const (
 	launch     gameState = iota // anim at start
+	ready                       // blink at beginning
 	flight                      // anim between targets
 	targetUp                    // target present, timer ticking
 	targetGot                   // success
@@ -58,6 +61,7 @@ type KeyScene struct {
 	score        int
 	miss         int
 	fired        int
+	moshipKeys   string
 	speed        difficulty
 	cfg          MissionConfiguration
 	sf           *Starfield
@@ -75,6 +79,12 @@ func init() {
 		log.Fatal(err)
 	}
 	handsHomeImage = ebiten.NewImageFromImage(img)
+
+	img, _, err = image.Decode(bytes.NewReader(resources.Moship_png))
+	if err != nil {
+		log.Fatal(err)
+	}
+	moshipImage = ebiten.NewImageFromImage(img)
 }
 
 func (g *KeyScene) OnEnter(sm *SceneManager) error {
@@ -93,6 +103,7 @@ func (g *KeyScene) OnEnter(sm *SceneManager) error {
 	g.sf = sm.Ctx.sf // stars!
 	g.target = ""
 	g.targetIdx = 0
+	g.moshipKeys = ""
 	return nil
 }
 
@@ -129,10 +140,14 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 			g.sf.speed /= 1.1
 		}
 		if g.ticksLeft == 0 {
-			g.nextState = flight
+			g.nextState = ready
 			g.sf.moveT = panright
 			g.ticksLeft = 30
 			g.sf.speed = 1 / 64.0
+		}
+	case ready:
+		if g.ticksInState >= 60 {
+			g.nextState = flight
 		}
 	case flight:
 		if g.ticksLeft == 0 {
@@ -160,7 +175,7 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 				g.targetIdx++
 				if g.targetIdx == len(g.target) {
 					g.score += WordScore(g.ticksInState, len(g.target))
-					g.nextState = targetGot
+					g.nextState = targetGot // explosion sfx at 'got' state
 					resources.StopRiser()
 					break
 				} else {
@@ -170,13 +185,41 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 				g.miss++
 			}
 		}
+	case moship:
+		if g.ticksInState == 0 {
+			// play the alert sound effect
+			resources.PlayFX("moship")
+			// reset list of keys to home row.
+			g.moshipKeys = "asdfjkl;"
+		}
+		for _, k := range g.keys {
+			// test if 'k' is in the moshipKeys string and remove it if so
+			g.moshipKeys = strings.Replace(g.moshipKeys, string(k), "", -1)
+			// if moshipKeys is empty, add 100 to the score
+			if g.moshipKeys == "" {
+				g.score += 100
+				//g.score += WordScore(g.ticksInState, len(g.target))
+				resources.StopSfxPlayer()
+				g.nextState = targetGot // explosion sfx at 'got' state
+				g.waveNum++
+			}
+		}
+		if g.ticksInState == 120 {
+			resources.StopSfxPlayer()
+			g.nextState = targetMiss
+		}
+
 	case targetGot:
 		if g.ticksInState == 0 {
 			resources.PlayFX("expl")
 		}
 		if g.ticksInState == 5 {
-			g.nextState = targetUp
-			g.SetTargetWord()
+			if g.waveNum%5 == 4 {
+				g.nextState = moship
+			} else {
+				g.nextState = targetUp
+				g.SetTargetWord()
+			}
 		}
 	case targetMiss:
 		if g.ticksInState == 0 {
@@ -237,13 +280,14 @@ func min(x, y float32) float32 {
 func (g *KeyScene) SetTargetWord() {
 	g.waveNum++
 	var newW string
+	// loopcall GetTarget until we get a new word
 	for newW = GetTarget(g.cfg.level, g.waveNum); newW == g.target; newW = GetTarget(g.cfg.level, g.waveNum) {
 		fmt.Println("duplicate word:", newW, " == ", g.target)
-	} // do it until we get a new word
+	}
 	g.target = newW
 	g.targetIdx = 0
 	g.ticksLeft = TicksForTarget(len(g.target), g.speed)
-	if len(g.target) < 3 { // short words zoom towards the player.
+	if len(g.target) < 3 { // short words zoom towards the player, long words are still
 		g.tgtX = rand.NormFloat64()*float64(Speeds[g.speed]/4) + float64(420)
 		g.tgtY = rand.NormFloat64()*float64(Speeds[g.speed]/8) + float64(150)
 		fmt.Printf("X: %0.3f, Y: %0.3f", g.tgtX, g.tgtY)
@@ -258,6 +302,10 @@ func (g *KeyScene) Draw(screen *ebiten.Image) {
 	}
 
 	switch g.state {
+	case ready:
+		if (g.ticksInState/10)%2 == 0 {
+			drawCenteredText(screen, "GET READY", titleArcadeFont, 2, color.RGBA{0x22, 0xff, 0x22, 0xff})
+		}
 	case success:
 		drawCenteredText(screen, "MISSION COMPLETE", titleArcadeFont, 2, color.RGBA{0x22, 0xff, 0x22, 0xff})
 		drawCenteredText(screen, fmt.Sprintf("Score: %d00", g.score), arcadeFont, 4, color.White)
@@ -266,6 +314,10 @@ func (g *KeyScene) Draw(screen *ebiten.Image) {
 		drawCenteredText(screen, "CRASHED!", titleArcadeFont, 2, color.RGBA{0xff, 0x22, 0x22, 0xff})
 		drawCenteredText(screen, fmt.Sprintf("Score: %d00", g.score), arcadeFont, 4, color.White)
 		drawCenteredText(screen, "Don't give up!", arcadeFont, 5, color.White)
+	case moship:
+		g.DrawMoship(screen)
+		drawCenteredText(screen, "asdfjkl;", hugeArcadeFont, 1, color.RGBA{0x22, 0xff, 0x22, 0xff})
+		g.DrawHighlightKeys(screen)
 
 	case targetUp:
 		if len(g.target) < 3 {
@@ -295,16 +347,10 @@ func (g *KeyScene) drawStatusText(screen *ebiten.Image) {
 	text.Draw(screen, fmt.Sprintf("%03d/%03d", g.waveNum, g.cfg.waves), smallArcadeFont, 530, 40, color.White)
 }
 
-func (g *KeyScene) DrawHighlightKeys(screen *ebiten.Image) {
-	if g.targetIdx >= len(g.target) {
-		return
-	}
-	if (g.ticksInState % 30) > 15 { // blink it
-		return
-	}
+func (g *KeyScene) DrawHighlightedKey(screen *ebiten.Image, rn rune) {
+	tgt := unicode.ToUpper(rn)
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Reset()
-	tgt := unicode.ToUpper(rune(g.target[g.targetIdx]))
 	r, ok := keyboard.RuneRect(tgt)
 	if !ok {
 		return
@@ -314,6 +360,29 @@ func (g *KeyScene) DrawHighlightKeys(screen *ebiten.Image) {
 	op.GeoM.Scale(2, 2)
 	op.GeoM.Translate(kbdOffsetX, kbdOffsetY)
 	screen.DrawImage(keyboardImage.SubImage(r).(*ebiten.Image), op)
+}
+
+func (g *KeyScene) DrawHighlightKeys(screen *ebiten.Image) {
+	if (g.ticksInState % 30) > 15 { // blink it
+		return
+	}
+	if g.state == targetUp {
+		if g.targetIdx >= len(g.target) {
+			return
+		}
+		g.DrawHighlightedKey(screen, rune(g.target[g.targetIdx]))
+	} else if g.state == moship {
+		for _, c := range "asdfjkl;" {
+			g.DrawHighlightedKey(screen, c)
+		}
+	}
+}
+
+func (g *KeyScene) DrawMoship(screen *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(1, 1)
+	op.GeoM.Translate(kbdOffsetX, 75)
+	screen.DrawImage(moshipImage, op)
 }
 
 func (g *KeyScene) DrawKeyboard(screen *ebiten.Image) {
