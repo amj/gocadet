@@ -46,17 +46,30 @@ func (s *MenuScene) OnExit(sm *SceneManager) error {
 	return nil
 }
 
+func (s *MenuScene) IncrementSpeed(sm *SceneManager) error {
+	resources.PlayFX("menu") // TODO -- new sound?
+	sm.Ctx.Profile.Difficulty++
+	if sm.Ctx.Profile.Difficulty > master { // loop around
+		sm.Ctx.Profile.Difficulty = beginner
+	}
+	return nil
+
+}
+
 func (s *MenuScene) Update(sm *SceneManager) error {
 	sm.Ctx.sf.Update()
+	if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
+		switch s.optSelected {
+		case 0: // adjust pilot?
+		case 1:
+			s.IncrementSpeed(sm)
+		}
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		switch s.optSelected {
-		case 0: // Do profile switch?
+		case 0: // Do profile switch?  Go to profile scene?
 		case 1: // speed
-			resources.PlayFX("menu") // TODO -- new sound?
-			sm.Ctx.Profile.Speed++
-			if sm.Ctx.Profile.Speed > master { // loop around
-				sm.Ctx.Profile.Speed = beginner
-			}
+			s.IncrementSpeed(sm)
 		case 2:
 			resources.PlayFX("menu")
 			sm.Ctx.MCfg.level++
@@ -65,8 +78,9 @@ func (s *MenuScene) Update(sm *SceneManager) error {
 			}
 		case 3: // Instructions
 		case 4: // Launch!
+			// TODO remove this case when we've figured out new pilot details.
 			if sm.Ctx.Profile.Name == "" {
-				sm.Ctx.Profile = UserProfile{Name: "dad", Results: make(map[int]GameResult)}
+				sm.Ctx.Profile = UserProfile{Name: "dad", Results: make(map[int]MissionResult)}
 			}
 			pData.LastUsed = sm.Ctx.Profile.Name
 			sm.SwitchTo("game")
@@ -135,7 +149,7 @@ func (s *MenuScene) Draw(screen *ebiten.Image) {
 			case 0:
 				txt = fmt.Sprintf("%s: %s", txt, s.profile.Name)
 			case 1:
-				txt = fmt.Sprintf("%s: %s", txt, s.profile.Speed)
+				txt = fmt.Sprintf("%s: %s", txt, s.profile.Difficulty)
 			case 2:
 				txt = fmt.Sprintf("%s: %d", txt, s.mCfg.level)
 			}

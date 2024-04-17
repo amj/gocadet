@@ -25,11 +25,11 @@ func (me difficulty) String() string {
 
 type UserProfile struct {
 	Name       string
-	Speed      difficulty         // difficulty setting.
-	Results    map[int]GameResult // per level
-	bigramErrs []string           // most recent N mistakes
+	Difficulty difficulty            // last used difficulty setting.
+	Results    map[int]MissionResult // per level
 }
 
+// data for all pilots
 type PilotData struct {
 	LastUsed string
 	Profiles map[string]UserProfile

@@ -4,11 +4,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const (
-	screenWidth  = 640
-	screenHeight = 480
-)
-
 // Scene is an interface with Draw, Update, On{Enter,Exit}.
 type Scene interface {
 	OnEnter(sm *SceneManager) error

@@ -104,3 +104,7 @@ and https://github.com/SolarLune/resound
   - sentences
   - paragraphs
   speeds: fast, superfast, hyperfast
+
+# Design for profiles/first-time-start
+
+If no profile active at startup, default to instructions scene & next transition to profile management/enrollment s

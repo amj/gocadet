@@ -25,6 +25,12 @@ var (
 	//go:embed moship2.png
 	Moship_png []byte
 
+	//go:embed moshipScrsht.png
+	MoshipInstr_png []byte
+
+	//go:embed instrScrsht.png
+	Instr_png []byte
+
 	//go:embed sfx/hit1.wav
 	Hit1_wav []byte
 

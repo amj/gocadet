@@ -90,7 +90,7 @@ func init() {
 func (g *KeyScene) OnEnter(sm *SceneManager) error {
 	fmt.Println("Entered keyscene")
 	g.cfg = sm.Ctx.MCfg
-	g.speed = sm.Ctx.Profile.Speed
+	g.speed = sm.Ctx.Profile.Difficulty
 	g.livesLeft = g.cfg.lives
 	g.waveNum = 0
 	g.state = launch
@@ -113,6 +113,7 @@ func (g *KeyScene) OnExit(sm *SceneManager) error {
 	g.sf.speed = 1.0 / 64.0
 	g.sf = nil
 	resources.StopRiser()
+	resources.StopSfxPlayer()
 	return nil
 }
 
@@ -204,7 +205,7 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 				g.waveNum++
 			}
 		}
-		if g.ticksInState == 120 {
+		if g.ticksInState == 120*(5-int(g.speed)) {
 			resources.StopSfxPlayer()
 			g.nextState = targetMiss
 		}
@@ -233,7 +234,7 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 	case success:
 		if g.ticksInState == 0 {
 			resources.PlayFX("takeoff") // TODO: victory fanfare
-			g.sf.moveT = zoomin
+			g.sf.moveT = zoomin         // speed up and fly off!
 			g.sf.speed = 1.0 / 300.0
 			// save the game result.  TODO: check for better score
 			sm.Ctx.Profile.Results[g.cfg.level] = g.MakeResult(true)
@@ -261,8 +262,8 @@ func (g *KeyScene) Update(sm *SceneManager) error {
 	return nil
 }
 
-func (g *KeyScene) MakeResult(won bool) GameResult {
-	return GameResult{
+func (g *KeyScene) MakeResult(won bool) MissionResult {
+	return MissionResult{
 		Score:    g.score,
 		Accuracy: float32(g.fired-g.miss) / float32(g.fired),
 		Errors:   g.miss,

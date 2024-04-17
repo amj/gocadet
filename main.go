@@ -9,6 +9,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const (
+	screenWidth  = 640
+	screenHeight = 480
+)
+
 // present in the scenemanager, should be copied from scene to scene?
 type Context struct {
 	Opts    GameOptions
@@ -32,12 +37,13 @@ type MissionConfiguration struct {
 	practiceMode bool
 }
 
-type GameResult struct {
-	time     int
-	Score    int
-	Errors   int
-	Accuracy float32
-	Won      bool
+type MissionResult struct {
+	msec       int64
+	Difficulty difficulty
+	Score      int
+	Errors     int
+	Accuracy   float32
+	Won        bool
 }
 
 var errQuit = errors.New("Quit")
