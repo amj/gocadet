@@ -77,6 +77,17 @@ func drawCenteredText(screen *ebiten.Image, txt string, face font.Face, yline in
 	text.Draw(screen, txt, face, x, fsize*yline, clr)
 }
 
+func LFHeight(face font.Face) int {
+	var fsize int = face.Metrics().Height.Ceil()
+	fsize += int(float32(fsize) * 1.1)
+	return fsize
+}
+
+func drawText(screen *ebiten.Image, txt string, face font.Face, x, y int, clr color.Color) {
+
+	text.Draw(screen, txt, face, x, y, clr)
+}
+
 func XforCentering(txt string, face font.Face) int {
 	fsize, _ := face.GlyphAdvance(rune('m'))
 	return (screenWidth - len(txt)*fsize.Ceil()) / 2

@@ -91,19 +91,19 @@ func (g *KeyScene) OnEnter(sm *SceneManager) error {
 	fmt.Println("Entered keyscene")
 	g.cfg = sm.Ctx.MCfg
 	g.speed = sm.Ctx.Profile.Difficulty
-	g.livesLeft = g.cfg.lives
-	g.waveNum = 0
-	g.state = launch
+	g.livesLeft = g.cfg.lives // shield
+	g.waveNum = 0             // how many targets we've seen
+	g.state = launch          // state machine
 	g.nextState = launch
-	g.ticksInState = 0
+	g.ticksInState = 0 // internal timer
 	g.ticksLeft = 60
-	g.score = 0
+	g.score = 0 // tracking score, misses, shots
 	g.miss = 0
 	g.fired = 0
-	g.sf = sm.Ctx.sf // stars!
-	g.target = ""
-	g.targetIdx = 0
-	g.moshipKeys = ""
+	g.sf = sm.Ctx.sf  // stars!
+	g.target = ""     // the target word
+	g.targetIdx = 0   // the index of the current letter in the current word
+	g.moshipKeys = "" // How many of the moship keys we've hit
 	return nil
 }
 

@@ -27,6 +27,8 @@ func (s *MenuScene) OnEnter(sm *SceneManager) error {
 	if s.sf == nil { // pick up an alias to the starfield
 		s.sf = sm.Ctx.sf
 	}
+	s.sf.moveT = zoomin
+	s.sf.speed = 1 / 64.0
 	// TODO prompt for profile name or switch scenes?
 	if sm.Ctx.Profile.Name != "" {
 		s.profile = &sm.Ctx.Profile
@@ -77,6 +79,7 @@ func (s *MenuScene) Update(sm *SceneManager) error {
 				sm.Ctx.MCfg.level = 0
 			}
 		case 3: // Instructions
+			sm.SwitchTo("help")
 		case 4: // Launch!
 			// TODO remove this case when we've figured out new pilot details.
 			if sm.Ctx.Profile.Name == "" {

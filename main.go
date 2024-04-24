@@ -54,6 +54,7 @@ func main() {
 	var m *SceneManager = MakeManager(map[string]Scene{
 		"menu": &MenuScene{},
 		"game": &KeyScene{},
+		"help": &HelpScene{},
 	})
 	if p, ok := ActiveProfile(); ok {
 		m.Ctx.Profile = p
